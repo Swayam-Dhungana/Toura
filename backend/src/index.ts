@@ -1,15 +1,14 @@
+// src/index.ts
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
-import dotenv from 'dotenv'
-
-dotenv.config()
+import authRoutes from '../routes/auth'
 
 const app = new Hono()
 
-app.get('/', (c) => c.text('Toura backend running with Hono + Node.js'))
+app.route('/auth', authRoutes)
 
-const port = Number(process.env.PORT) || 3000
+app.get('/', (c) => c.text('Hello from Hono + Node.js!'))
 
-serve({ fetch: app.fetch, port }, () => {
-  console.log(`Server running at http://localhost:${port}`)
-})
+serve({ fetch: app.fetch, port: 3000 })
+
+console.log('🔥 Server running on http://localhost:3000')
