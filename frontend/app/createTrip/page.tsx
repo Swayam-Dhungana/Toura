@@ -4,9 +4,9 @@ import React, { useState, useRef } from "react";
 import { motion, useInView, Variants } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import Button from "@/components/ui/Button";
-import { SelectBudgetOption, SelectTravelersList } from "../constants/options";
+import { AI_PROMPT, SelectBudgetOption, SelectTravelersList } from "../constants/options";
 import { toast } from "sonner";
-
+import generateTripPlan from "../service/AiModel";
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: (custom = 0) => ({
@@ -113,14 +113,33 @@ const Page = () => {
     setTripPreferences((prev) => ({ ...prev, travelerType: title }));
   };
 
-  const handleSubmit = () => {
-    if(!tripPreferences?.budget || !tripPreferences?.days || !tripPreferences?.travelerType ){
-        toast("Fill all the data")
-        return
-    }
-    console.log("Trip Preferences:", tripPreferences);
-    // You can send this to backend or next screen
-  };
+const handleSubmit = async () => {
+  if (
+    !tripPreferences.budget ||
+    !tripPreferences.days ||
+    !tripPreferences.travelerType ||
+    !tripPreferences.destination
+  ) {
+    toast.error("Please fill all the data");
+    return;
+  }
+
+  console.log("Trip Preferences:", tripPreferences);
+
+  try {
+    toast.loading("Generating your trip plan...");
+    const result = await generateTripPlan(tripPreferences); // ✅ Pass the object directly
+    toast.dismiss();
+    toast.success("Trip plan generated!");
+    console.log(result);
+    // You can set the result to state to display it in UI
+  } catch (error) {
+    toast.dismiss();
+    toast.error("Failed to generate trip plan. Try again.");
+    console.error(error);
+  }
+};
+
 
   return (
     <div className="min-h-screen px-5 sm:px-10 md:px-20 lg:px-36 xl:px-40 py-20 bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-black text-white space-y-16">
