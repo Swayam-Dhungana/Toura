@@ -1,11 +1,11 @@
 // src/index.ts
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
-import authRoutes from '../routes/auth'
+import authRoutes from '../routes/api'
 
 const app = new Hono()
 
-app.route('/auth', authRoutes)
+app.route('/api', authRoutes)
 
 app.get('/', (c) => c.text('Hello from Hono + Node.js!'))
 
