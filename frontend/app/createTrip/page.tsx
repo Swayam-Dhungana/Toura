@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import Button from "@/components/ui/Button";
 import { AI_PROMPT, SelectBudgetOption, SelectTravelersList } from "../constants/options";
 import { toast } from "sonner";
-import generateTripPlan from "../service/AiModel";
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: (custom = 0) => ({
@@ -128,17 +127,34 @@ const handleSubmit = async () => {
 
   try {
     toast.loading("Generating your trip plan...");
-    const result = await generateTripPlan(tripPreferences); // ✅ Pass the object directly
+
+    const res = await fetch('http://localhost:3000/api/v1/generate-trip-plan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(tripPreferences),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error: ${res.statusText}`);
+    }
+
+    const result = await res.json();
+
     toast.dismiss();
     toast.success("Trip plan generated!");
-    console.log(result);
-    // You can set the result to state to display it in UI
+    console.log('AI Trip Plan:', result);
+
+    // You can store the result in state here if you want to display it
+    // setTripPlan(result);
   } catch (error) {
     toast.dismiss();
     toast.error("Failed to generate trip plan. Try again.");
     console.error(error);
   }
 };
+
 
 
   return (
