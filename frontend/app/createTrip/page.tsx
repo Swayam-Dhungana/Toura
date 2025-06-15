@@ -1,5 +1,20 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useRef } from "react";
+import { motion, useInView, Variants } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import Button from "@/components/ui/Button";
+import { SelectBudgetOption, SelectTravelersList } from "../constants/options";
+import { toast } from "sonner";
+
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (custom = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: custom, duration: 0.6, ease: "easeOut" },
+  }),
+};
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -9,9 +24,46 @@ interface Feature {
   center: [number, number];
 }
 
+interface TripPreferences {
+  destination: string;
+  coordinates: [number, number] | null;
+  days: number | null;
+  budget: string | null;
+  travelerType: string | null;
+}
+
+const AnimatedSection = ({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -100px 0px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      variants={fadeInUp}
+      custom={delay}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
 const Page = () => {
-  const [query, setQuery] = useState("");
   const [results, setResults] = useState<Feature[]>([]);
+  const [tripPreferences, setTripPreferences] = useState<TripPreferences>({
+    destination: "",
+    coordinates: null,
+    days: null,
+    budget: null,
+    travelerType: null,
+  });
 
   const fetchPlaces = async (value: string) => {
     if (!value) {
@@ -27,9 +79,9 @@ const Page = () => {
     setResults(data.features);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setQuery(val);
+    setTripPreferences((prev) => ({ ...prev, destination: val }));
     if (val.length > 2) {
       fetchPlaces(val);
     } else {
@@ -37,40 +89,65 @@ const Page = () => {
     }
   };
 
-  const handleSelect = (place: Feature) => {
-    setQuery(place.place_name);
+  const handleSelectPlace = (place: Feature) => {
+    setTripPreferences((prev) => ({
+      ...prev,
+      destination: place.place_name,
+      coordinates: place.center,
+    }));
     setResults([]);
-    console.log("Selected place:", place.place_name);
-    console.log("Coordinates:", place.center); // [lng, lat]
-    // Add your logic here for selected place
+  };
+
+  const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTripPreferences((prev) => ({
+      ...prev,
+      days: parseInt(e.target.value),
+    }));
+  };
+
+  const handleBudgetSelect = (title: string) => {
+    setTripPreferences((prev) => ({ ...prev, budget: title }));
+  };
+
+  const handleTravelerSelect = (title: string) => {
+    setTripPreferences((prev) => ({ ...prev, travelerType: title }));
+  };
+
+  const handleSubmit = () => {
+    if(!tripPreferences?.budget || !tripPreferences?.days || !tripPreferences?.travelerType ){
+        toast("Fill all the data")
+        return
+    }
+    console.log("Trip Preferences:", tripPreferences);
+    // You can send this to backend or next screen
   };
 
   return (
-    <div className="sm:px-10 md:px-32 lg:px-56 xl:px-10 px-5 mt-20 max-w-md mx-auto">
-      <h2 className="font-bold text-3xl">Choose your Preference</h2>
-      <p className="mt-3 text-gray-500 text-xl">
-        Let our AI choose the most optimal plan for you
-      </p>
+    <div className="min-h-screen px-5 sm:px-10 md:px-20 lg:px-36 xl:px-40 py-20 bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-black text-white space-y-16">
+      <AnimatedSection delay={0}>
+        <h2 className="font-extrabold text-4xl md:text-5xl">
+          Choose your <span className="text-[#f56551]">Preference</span>
+        </h2>
+        <p className="mt-4 text-lg text-gray-400">
+          Let our AI choose the most optimal plan for you.
+        </p>
+      </AnimatedSection>
 
-      <div className="mt-10 relative">
-        <label className="block text-xl mb-2 font-medium">
-          Enter your destination:
-        </label>
+      <AnimatedSection delay={0.1}>
+        <label className="block text-xl mb-2 font-medium">Destination</label>
         <input
           type="text"
-          value={query}
-          onChange={handleChange}
+          value={tripPreferences.destination}
+          onChange={handleDestinationChange}
           placeholder="Search for a city or place"
-          className="w-full px-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#f56551]"
+          className="w-full px-4 py-2 bg-black/40 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f56551]"
         />
-
-        {/* Suggestions dropdown */}
         {results.length > 0 && (
-          <ul className="absolute z-50 bg-white border border-gray-300 rounded shadow-md w-full max-h-60 overflow-auto mt-1">
+          <ul className="absolute z-50 mt-1 w-full bg-black border border-gray-700 rounded shadow-md max-h-60 overflow-auto">
             {results.map((place) => (
               <li
                 key={place.id}
-                onClick={() => handleSelect(place)}
+                onClick={() => handleSelectPlace(place)}
                 className="cursor-pointer px-4 py-2 hover:bg-[#f56551] hover:text-white"
               >
                 {place.place_name}
@@ -78,7 +155,71 @@ const Page = () => {
             ))}
           </ul>
         )}
-      </div>
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.2}>
+        <h2 className="text-2xl font-semibold mb-3">Number of Days</h2>
+        <Input
+          placeholder="Ex. 3"
+          type="number"
+          onChange={handleDaysChange}
+          className="max-w-xs bg-black/40 text-white border-gray-600"
+        />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.3}>
+        <h2 className="text-2xl font-semibold mb-5">What is your budget?</h2>
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {SelectBudgetOption.map((item, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.05 }}
+              onClick={() => handleBudgetSelect(item.title)}
+              className={`bg-black/40 p-5 border ${
+                tripPreferences.budget === item.title
+                  ? "border-[#f56551]"
+                  : "border-gray-700"
+              } hover:cursor-pointer rounded-lg shadow-sm hover:shadow-lg transition-all duration-200`}
+            >
+              <div className="text-3xl mb-2">{item.icon}</div>
+              <h3 className="font-semibold text-lg">{item.title}</h3>
+              <p className="text-gray-400 text-sm mt-1">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.4}>
+        <h2 className="text-2xl font-semibold mb-5">
+          Who are you travelling with?
+        </h2>
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {SelectTravelersList.map((item, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.05 }}
+              onClick={() => handleTravelerSelect(item.title)}
+              className={`bg-black/40 p-5 border ${
+                tripPreferences.travelerType === item.title
+                  ? "border-[#f56551]"
+                  : "border-gray-700"
+              } hover:cursor-pointer rounded-lg shadow-sm hover:shadow-lg transition-all duration-200`}
+            >
+              <div className="text-3xl mb-2">{item.icon}</div>
+              <h3 className="font-semibold text-lg">{item.title}</h3>
+              <p className="text-gray-400 text-sm mt-1">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.5}>
+        <div className="flex justify-end mt-10">
+          <Button variant="secondary" onClick={handleSubmit}>
+            Generate Trip
+          </Button>
+        </div>
+      </AnimatedSection>
     </div>
   );
 };
