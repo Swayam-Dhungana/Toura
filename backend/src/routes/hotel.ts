@@ -34,6 +34,7 @@ app.post('/generate-trip-plan', async (c) => {
 
     const prompt = `
 You are a smart AI travel planner. Generate a travel itinerary in **valid JSON format** (no explanations, just JSON).
+//The image URL must be accessible (i.e., not a placeholder or example), and should end with ".jpg",".png"  from (royalty-free image sites like Unsplash, Pexels, or Wikimedia Commons)
 
 ### Trip Preferences:
 - Destination: ${destination}
@@ -54,7 +55,7 @@ You are a smart AI travel planner. Generate a travel itinerary in **valid JSON f
       "pricePerNight": "₹ Approximate",
       "rating": "4.3/5",
       "description": "Brief hotel description",
-      "imageUrl": "https://example.com/hotel.jpg", //actual image url of the hotel
+      "imageUrl": "https://example.com/hotel.jpg",
       "coordinates": {
         "lat": 00.0000,
         "lng": 00.0000

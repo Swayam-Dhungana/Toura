@@ -49,31 +49,3 @@ export const SelectBudgetOption = [
     icon: "🏰", // placeholder icon
   },
 ];
-export const AI_PROMPT = ({
-  destination,
-  coordinates,
-  days,
-  budget,
-  travelerType,
-}: {
-  destination: string;
-  coordinates: [number, number] | null;
-  days: number;
-  budget: string;
-  travelerType: string;
-}) => `
-You are a helpful travel planner AI. Based on the following preferences, generate a personalized travel itinerary.
-- Destination: ${destination}
-- Coordinates: ${coordinates ? coordinates.join(", ") : "Not provided"}
-- Duration: ${days} day(s)
-- Budget Level: ${budget}
-- Traveller Type: ${travelerType}
-
-Generate a detailed plan for each day including:
-- Places to visit
-- Activities
-- Food recommendations
-- Local tips
-
-Keep the tone friendly and engaging.
-`;
