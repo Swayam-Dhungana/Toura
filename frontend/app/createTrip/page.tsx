@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import Button from "@/components/ui/Button";
 import { AI_PROMPT, SelectBudgetOption, SelectTravelersList } from "../constants/options";
 import { toast } from "sonner";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebaseClient";
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: (custom = 0) => ({
@@ -141,7 +143,7 @@ const handleSubmit = async () => {
     }
 
     const result = await res.json();
-
+    SaveAiTrip(result)
     toast.dismiss();
     toast.success("Trip plan generated!");
     console.log('AI Trip Plan:', result);
@@ -155,7 +157,27 @@ const handleSubmit = async () => {
   }
 };
 
+const SaveAiTrip=async(TripData : any)=>{
+  console.log(TripData)
+  //call the api here to get the id form cookie
+  const res=await fetch('http://localhost:3000/api/v1/getId',{
+    method: 'GET',
+    headers:{
+      'Content-Type':'application/json'
+    },
+    credentials:"include",
+  })
+  const data=await res.json()
+  const user=data.user;
+  console.log(user)
+const docId=Date.now().toString()
+await setDoc(doc(db, "AITrips", docId), {
+  userSelection: tripPreferences,
+  TripData: JSON.parse(TripData) || null,
+  userEmail: user.email || null, // fallback to null
+});
 
+}
 
   return (
     <div className="min-h-screen px-5 sm:px-10 md:px-20 lg:px-36 xl:px-40 py-20 bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-black text-white space-y-16">

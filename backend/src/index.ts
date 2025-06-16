@@ -1,8 +1,8 @@
 // src/index.ts
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
-import authRoutes from '../routes/api'
-import hotelRoutes from '../routes/hotel'
+import authRoutes from './routes/api'
+import hotelRoutes from './routes/hotel'
 const app = new Hono()
 
 app.route('/api', authRoutes)

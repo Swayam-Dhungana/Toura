@@ -1,7 +1,7 @@
 // src/routes/auth.ts
 import { Hono } from 'hono'
 import { cors } from 'hono/cors' // Import CORS middleware
-import { adminAuth } from '../lib/firebase'
+import {adminAuth} from '../lib/firebase'
 
 const authRoutes = new Hono()
 
