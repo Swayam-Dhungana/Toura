@@ -1,45 +1,107 @@
-import React from 'react';
+"use client";
 
-const Hotels = ({ trip }: { trip: any }) => {
+import React, { useEffect, useState } from "react";
+
+type Coordinates = {
+  lat: number;
+  lng: number;
+};
+
+type Hotel = {
+  name: string;
+  address?: string;
+  description?: string;
+  rating?: number;
+  pricePerNight?: string;
+  coordinates: Coordinates;
+  imageUrl?: string;
+};
+
+type Props = {
+  trip: {
+    TripData: {
+      data: {
+        hotels: Hotel[];
+      };
+    };
+  };
+};
+
+const Hotels: React.FC<Props> = ({ trip }) => {
   const hotels = trip?.TripData?.data.hotels || [];
+
+  const [hotelImages, setHotelImages] = useState<Record<string, string>>({});
+  const UNSPLASH_ACCESS_KEY = "gc3UYZdSvKuE18BuyxdsjlzmwIY6UxFs_rtdJ3o_Gug";
+
+  useEffect(() => {
+    const hotelsToFetch = hotels.filter((hotel) => !hotelImages[hotel.name]);
+    if (hotelsToFetch.length === 0) return;
+
+    hotelsToFetch.forEach(async (hotel) => {
+      try {
+        const query = encodeURIComponent(hotel.name);
+        const response = await fetch(
+          `https://api.unsplash.com/search/photos?query=${query}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=1`
+        );
+        const data = await response.json();
+        const imageUrl =
+          data.results?.[0]?.urls?.small || "/placeholder.webp";
+        setHotelImages((prev) => ({ ...prev, [hotel.name]: imageUrl }));
+      } catch (error) {
+        setHotelImages((prev) => ({ ...prev, [hotel.name]: "/placeholder.webp" }));
+      }
+    });
+  }, [hotels]);
 
   const openOpenStreetMap = (lat: number, lng: number) => {
     const zoom = 15;
     const url = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${zoom}/${lat}/${lng}`;
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   return (
-    <div className="font-bold text-xl mt-10 p-10 md:px-20 lg:px-44 xl:px-56">
-      <h2 className="mb-6 text-2xl">🏨 Hotel Recommendations</h2>
-      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+    <div className="mt-10 p-10 md:px-20 lg:px-44 xl:px-56 text-white">
+      <h2 className="mb-8 text-3xl font-extrabold">
+        <span className="bg-gradient-to-r from-[#f56551] via-[#fc9272] to-[#fcbf49] bg-clip-text text-transparent">
+          🏨 Hotel Recommendations
+        </span>
+      </h2>
+      <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {hotels.length > 0 ? (
-          hotels.map((hotel: any, index: number) => (
+          hotels.map((hotel, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-              onClick={() => openOpenStreetMap(hotel.coordinates.lat, hotel.coordinates.lng)}
+              onClick={() =>
+                openOpenStreetMap(hotel.coordinates.lat, hotel.coordinates.lng)
+              }
+              className="bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-lg hover:shadow-orange-500/30 transition-shadow duration-300 cursor-pointer"
             >
               <img
-                src={hotel.imageUrl || '/placeholder.webp'}
+                src={
+                  hotelImages[hotel.name] ||
+                  hotel.imageUrl ||
+                  "/placeholder.webp"
+                }
                 alt={hotel.name}
                 className="w-full h-48 object-cover"
               />
-              <div className="p-4 text-gray-800">
-                <h3 className="text-lg font-semibold mb-1">{hotel.name}</h3>
-                <p className="text-sm text-gray-600 mb-1">{hotel.address}</p>
-                <p className="text-sm mb-1">{hotel.description}</p>
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-sm font-medium">⭐ {hotel.rating}</p>
-                  <p className="text-sm font-semibold text-green-600">
-                    {hotel.pricePerNight}
-                  </p>
+              <div className="p-4">
+                <h3 className="text-xl font-bold mb-1">{hotel.name}</h3>
+                <p className="text-sm text-gray-400 mb-1">{hotel.address}</p>
+                <p className="text-sm text-gray-300 line-clamp-3">{hotel.description}</p>
+                <div className="flex justify-between items-center mt-3">
+                  <span className="text-sm text-yellow-400">⭐ {hotel.rating ?? "N/A"}</span>
+                  <span className="text-sm font-semibold bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full">
+                    {hotel.pricePerNight ?? "N/A"}
+                  </span>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <p className="text-sm text-gray-500 font-normal">No hotel data available.</p>
+          <p className="text-sm text-gray-400 font-normal">
+            No hotel data available.
+          </p>
         )}
       </div>
     </div>
