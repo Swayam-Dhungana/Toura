@@ -22,10 +22,10 @@ const page = () => {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("✅ Document:", docSnap.data());
+      console.log("Document:", docSnap.data());
       setTrip(docSnap.data());
     } else {
-      toast.error("❌ No trip found");
+      toast.error("No trip found");
     }
   };
 

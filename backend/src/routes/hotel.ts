@@ -1,21 +1,13 @@
 // src/routes/tripPlan.ts
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { adminAuth } from '../lib/firebase' 
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import 'dotenv/config'
-import { saveTripPromptToFirestore } from '../lib/firebase'
-import { getUserIdFromCookie } from '../utils/auth' // ✅ import the UID extractor
+import { getUserIdFromCookie } from '../utils/auth' 
 
 const app = new Hono()
 
-// Enable CORS
-app.use(
-  '*',
-  cors({
-    origin: 'http://localhost:3001',
-    credentials: true,
-  })
-)
 
 const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
@@ -113,7 +105,6 @@ Make sure to output **valid JSON**.
   }
 })
 
-import { adminAuth } from '../lib/firebase' // already imported
 
 app.get('/getId', async (c) => {
   try {

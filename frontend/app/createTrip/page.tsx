@@ -180,7 +180,7 @@ const Page = () => {
     await setDoc(doc(db, "AITrips", docId), {
       userSelection: tripPreferences,
       TripData: TripData || null,
-      userEmail: user.email || null, // fallback to null
+      userEmail: user.email || null, 
     });
     router.push('viewTrip/'+docId)
   };

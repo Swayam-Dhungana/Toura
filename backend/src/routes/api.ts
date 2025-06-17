@@ -1,18 +1,9 @@
-// src/routes/auth.ts
 import { Hono } from 'hono'
-import { cors } from 'hono/cors' // Import CORS middleware
 import {adminAuth} from '../lib/firebase'
 
 const authRoutes = new Hono()
 
-// Use CORS middleware with options
-authRoutes.use(
-  '*',
-  cors({
-    origin: 'http://localhost:3001',  // Change this to your frontend origin!
-    credentials: true,
-  })
-)
+
 
 authRoutes.post('/setcookie', async (c) => {
   try {
@@ -46,7 +37,6 @@ authRoutes.get('/session', async (c) => {
     const cookie = c.req.header('cookie')
     if (!cookie) throw new Error('No cookie')
 
-    // Extract the session cookie value from cookie header (parse cookie string)
     const match = cookie.match(/session=([^;]+)/)
     if (!match) throw new Error('No session cookie')
 

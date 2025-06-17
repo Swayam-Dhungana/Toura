@@ -1,4 +1,3 @@
-// lib/fetchPlaceData.ts
 export async function getMapboxPlaceData(query: string) {
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
   const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=1`;

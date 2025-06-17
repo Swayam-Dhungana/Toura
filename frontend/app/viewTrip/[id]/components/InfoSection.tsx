@@ -9,13 +9,13 @@ const InfoSection = ({ trip }: { trip: any }) => {
 
   return (
     <div className="mt-10 p-10 md:px-20 lg:px-44 xl:px-56 
-      bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-black
+      bg-gradient-to-br from-[#000000] via-[#1a1a1a] to-black
       rounded-2xl shadow-lg text-white"
     >
       <img
         src="/placeholder.png"
         alt={destination}
-        className="h-[300px] w-full rounded-xl object-cover mb-6"
+        className="h-[300px] w-full rounded-xl object-   mb-6"
       />
       <div className="flex justify-between items-center flex-wrap gap-6">
         <div className="flex flex-col gap-3 max-w-xl">
