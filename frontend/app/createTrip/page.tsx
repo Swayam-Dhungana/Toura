@@ -56,6 +56,7 @@ const AnimatedSection = ({
 };
 
 const Page = () => {
+  const baseUrl=process.env.NEXT_PUBLIC_API_BASE_URL
   const [results, setResults] = useState<Feature[]>([]);
   const router = useRouter();
 
@@ -122,7 +123,7 @@ const Page = () => {
 
     try {
       toast.loading("Generating your trip plan...");
-      const res = await fetch("http://localhost:3000/api/v1/generate-trip-plan", {
+      const res = await fetch(`${baseUrl}/api/v1/generate-trip-plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(tripPreferences),
@@ -142,7 +143,7 @@ const Page = () => {
   };
 
   const SaveAiTrip = async (TripData: TripData) => {
-    const res = await fetch("http://localhost:3000/api/v1/getId", {
+    const res = await fetch(`${baseUrl}/api/v1/getId`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

@@ -4,11 +4,13 @@ import { serve } from '@hono/node-server'
 import authRoutes from './src/routes/api'
 import hotelRoutes from './src/routes/hotel'
 import { cors } from 'hono/cors'
+import 'dotenv/config'
+
 const app = new Hono()
 app.use(
   '*',
   cors({
-    origin: 'http://localhost:3001',
+    origin: process.env.BASEURL as string,
     credentials: true,
   })
 )

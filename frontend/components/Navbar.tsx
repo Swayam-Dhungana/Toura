@@ -19,9 +19,9 @@ const fadeDown: Variants = {
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-
+    const baseUrl=process.env.NEXT_PUBLIC_API_BASE_URL
   useEffect(() => {
-    fetch("http://localhost:3000/api/session", {
+    fetch(`${baseUrl}/api/session`, {
       credentials: "include",
     })
       .then((res) => res.json())

@@ -6,6 +6,7 @@ import { auth, googleProvider } from '../lib/firebaseClient'
 import { signInWithPopup } from 'firebase/auth'
 
 const GoogleLoginButton = () => {
+  const baseUrl=process.env.NEXT_PUBLIC_API_BASE_URL
   const handleGoogleLogin = async () => {
     try {
       // Sign in with Google popup
@@ -16,7 +17,7 @@ const GoogleLoginButton = () => {
       const idToken = await user.getIdToken()
 
       // Send the ID token to your backend
-      const response = await fetch('http://localhost:3000/api/setcookie', {
+      const response = await fetch(`${baseUrl}/api/setcookie`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
