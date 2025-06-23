@@ -13,7 +13,7 @@ app.use('*', async (c, next) => {
   c.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
 
   if (c.req.method === 'OPTIONS') {
-    return c.text('', 204) // Respond immediately for preflight
+    return c.text('', 400) // Respond immediately for preflight
   }
 
   await next()
