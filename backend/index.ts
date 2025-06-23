@@ -13,12 +13,12 @@ app.use('*', async (c, next) => {
   c.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
 
   if (c.req.method === 'OPTIONS') {
-    return c.text('', 400) // Respond immediately for preflight
+    return c.text('', 400) 
   }
 
   await next()
 })
-
+//Comment for last Deployment
 app.route('/api', authRoutes)
 app.route('/api/v1',hotelRoutes)
 app.get('/', (c) => c.text('Hello from Hono + Node.js!'))
