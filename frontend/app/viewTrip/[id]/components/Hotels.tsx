@@ -1,57 +1,41 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-
-type Coordinates = {
-  lat: number;
-  lng: number;
-};
-
-type Hotel = {
-  name: string;
-  address?: string;
-  description?: string;
-  rating?: number;
-  pricePerNight?: string;
-  coordinates: Coordinates;
-  imageUrl?: string;
-};
+import React, { useEffect, useMemo, useState } from "react";
+import { Trip } from "@/app/types/type";
+import Image from "next/image";
 
 type Props = {
-  trip: {
-    TripData: {
-      data: {
-        hotels: Hotel[];
-      };
-    };
-  };
+  trip: Trip
+  ;
 };
 
 const Hotels: React.FC<Props> = ({ trip }) => {
-  const hotels = trip?.TripData?.data.hotels || [];
+const hotels = useMemo(() => trip?.TripData?.data.hotels || [], [trip]);
 
   const [hotelImages, setHotelImages] = useState<Record<string, string>>({});
   const UNSPLASH_ACCESS_KEY = "gc3UYZdSvKuE18BuyxdsjlzmwIY6UxFs_rtdJ3o_Gug";
 
-  useEffect(() => {
-    const hotelsToFetch = hotels.filter((hotel) => !hotelImages[hotel.name]);
-    if (hotelsToFetch.length === 0) return;
+useEffect(() => {
+  const fetchedHotels = new Set(Object.keys(hotelImages));
+  const hotelsToFetch = hotels.filter((hotel) => !fetchedHotels.has(hotel.name));
+  if (hotelsToFetch.length === 0) return;
 
-    hotelsToFetch.forEach(async (hotel) => {
-      try {
-        const query = encodeURIComponent(hotel.name);
-        const response = await fetch(
-          `https://api.unsplash.com/search/photos?query=${query}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=1`
-        );
-        const data = await response.json();
-        const imageUrl =
-          data.results?.[0]?.urls?.small || "/placeholder.webp";
-        setHotelImages((prev) => ({ ...prev, [hotel.name]: imageUrl }));
-      } catch (error) {
-        setHotelImages((prev) => ({ ...prev, [hotel.name]: "/placeholder.webp" }));
-      }
-    });
-  }, [hotels]);
+  hotelsToFetch.forEach(async (hotel) => {
+    try {
+      const query = encodeURIComponent(hotel.name);
+      const response = await fetch(
+        `https://api.unsplash.com/search/photos?query=${query}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=1`
+      );
+      const data = await response.json();
+      const imageUrl =
+        data.results?.[0]?.urls?.small || "/placeholder.webp";
+      setHotelImages((prev) => ({ ...prev, [hotel.name]: imageUrl }));
+    } catch {
+      setHotelImages((prev) => ({ ...prev, [hotel.name]: "/placeholder.webp" }));
+    }
+  });
+}, [hotels, hotelImages]);
+
 
   const openOpenStreetMap = (lat: number, lng: number) => {
     const zoom = 15;
@@ -76,7 +60,7 @@ const Hotels: React.FC<Props> = ({ trip }) => {
               }
               className="bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-lg hover:shadow-orange-500/30 transition-shadow duration-300 cursor-pointer"
             >
-              <img
+              <Image
                 src={
                   hotelImages[hotel.name] ||
                   hotel.imageUrl ||

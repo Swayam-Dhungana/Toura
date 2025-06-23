@@ -1,39 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion, Variants } from "framer-motion";
-
-type Coordinates = {
-  lat: number;
-  lng: number;
-};
-
-type Place = {
-  placeName: string;
-  ticketPrice?: string;
-  timeToSpend?: string;
-  imageUrl?: string;
-  details?: string;
-  coordinates?: Coordinates;
-  travelTimeFromLastLocation?: string;
-  bestTimeToVisit?: string;
-};
-
-type ItineraryItem = {
-  day: number;
-  plan: Place[];
-};
-
-type TripData = {
-  data: {
-    itinerary: ItineraryItem[];
-  };
-};
+import { Trip } from "@/app/types/type";
+import Image from "next/image";
 
 type Props = {
-  trip: {
-    TripData: TripData;
-  };
+  trip: Trip
 };
 
 const fadeInUp: Variants = {
@@ -46,7 +19,7 @@ const fadeInUp: Variants = {
 };
 
 const PlacesToVisit: React.FC<Props> = ({ trip }) => {
-  const itinerary = trip?.TripData?.data?.itinerary || [];
+  const itinerary = useMemo(() => trip?.TripData?.data.itinerary || [], [trip]);
 
   const [placeImages, setPlaceImages] = useState<Record<string, string>>({});
 
@@ -74,11 +47,11 @@ const PlacesToVisit: React.FC<Props> = ({ trip }) => {
         } else {
           setPlaceImages((prev) => ({ ...prev, [place.placeName]: "/placeholder.webp" }));
         }
-      } catch (error) {
+      } catch {
         setPlaceImages((prev) => ({ ...prev, [place.placeName]: "/placeholder.webp" }));
       }
     });
-  }, [itinerary]);
+  }, [itinerary,placeImages]);
 
   const openOpenStreetMap = (lat: number, lng: number) => {
     const zoom = 15;
@@ -118,7 +91,7 @@ const PlacesToVisit: React.FC<Props> = ({ trip }) => {
                 variants={fadeInUp}
                 custom={placeIndex * 0.1}
               >
-                <img
+                <Image
                   src={placeImages[place.placeName] || place.imageUrl || "/placeholder.webp"}
                   alt={place.placeName}
                   className="w-full h-48 object-cover"

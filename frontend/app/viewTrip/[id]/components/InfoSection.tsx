@@ -1,9 +1,11 @@
 "use client";
 
+import { Payload } from '@/app/types/type';
 import Button from '@/components/ui/Button';
+import Image from 'next/image';
 import React from 'react';
 
-const InfoSection = ({ trip }: { trip: any }) => {
+const InfoSection = ({ trip }: { trip: Payload }) => {
   const selection = trip?.userSelection;
   const destination = selection?.destination || "Unknown Location";
 
@@ -12,7 +14,7 @@ const InfoSection = ({ trip }: { trip: any }) => {
       bg-gradient-to-br from-[#000000] via-[#1a1a1a] to-black
       rounded-2xl shadow-lg text-white"
     >
-      <img
+      <Image
         src="/placeholder.png"
         alt={destination}
         className="h-[300px] w-full rounded-xl object-   mb-6"

@@ -8,26 +8,35 @@ import { toast } from "sonner";
 import InfoSection from "./components/InfoSection";
 import Hotels from "./components/Hotels";
 import PlacesToVisit from "./components/PlacesToVisit";
+import { Payload } from "@/app/types/type";
+const ViewTripPage = () => {
 
-const page = () => {
+
   const { id } = useParams();
-  const [trip, setTrip] = useState<any>(null);
+  const [trip, setTrip] = useState<Payload | null>(null);
 
-  useEffect(() => {
-    if (id) GetTripData();
-  }, [id]);
-
+useEffect(() => {
   const GetTripData = async () => {
-    const docRef = doc(db, "AITrips", id as string);
-    const docSnap = await getDoc(docRef);
+    try {
+      const docRef = doc(db, "AITrips", id as string);
+      const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      console.log("Document:", docSnap.data());
-      setTrip(docSnap.data());
-    } else {
-      toast.error("No trip found");
+      if (docSnap.exists()) {
+        setTrip(docSnap.data() as Payload);
+      } else {
+        toast.error("No trip found");
+      }
+    } catch {
+      toast.error("Failed to load trip data");
     }
   };
+
+  if (id) {
+    GetTripData();
+  }
+}, [id]);
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#111111] text-white">
@@ -50,4 +59,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ViewTripPage;

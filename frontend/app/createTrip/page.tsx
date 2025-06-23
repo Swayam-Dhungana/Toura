@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebaseClient";
 import { useRouter } from "next/navigation";
+import { TripData, userSelection } from "../types/type";
+
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: (custom = 0) => ({
@@ -23,18 +25,11 @@ const fadeInUp: Variants = {
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
+
 interface Feature {
   id: string;
   place_name: string;
-  center: [number, number];
-}
-
-interface TripPreferences {
-  destination: string;
-  coordinates: [number, number] | null;
-  days: number | null;
-  budget: string | null;
-  travelerType: string | null;
+  center: [number, number]; // [lng, lat]
 }
 
 const AnimatedSection = ({
@@ -46,13 +41,14 @@ const AnimatedSection = ({
 }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "0px 0px -100px 0px" });
+
   return (
     <motion.div
-    ref={ref}
-    initial="hidden"
-    animate={inView ? "visible" : "hidden"}
-    variants={fadeInUp}
-    custom={delay}
+      ref={ref}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      variants={fadeInUp}
+      custom={delay}
     >
       {children}
     </motion.div>
@@ -61,13 +57,14 @@ const AnimatedSection = ({
 
 const Page = () => {
   const [results, setResults] = useState<Feature[]>([]);
-  const router=useRouter()
-  const [tripPreferences, setTripPreferences] = useState<TripPreferences>({
+  const router = useRouter();
+
+  const [tripPreferences, setTripPreferences] = useState<userSelection>({
     destination: "",
     coordinates: null,
     days: null,
-    budget: null,
-    travelerType: null,
+    budget: "",
+    travelerType: "",
   });
 
   const fetchPlaces = async (value: string) => {
@@ -87,18 +84,15 @@ const Page = () => {
   const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setTripPreferences((prev) => ({ ...prev, destination: val }));
-    if (val.length > 2) {
-      fetchPlaces(val);
-    } else {
-      setResults([]);
-    }
+    if (val.length > 2) fetchPlaces(val);
+    else setResults([]);
   };
 
   const handleSelectPlace = (place: Feature) => {
     setTripPreferences((prev) => ({
       ...prev,
       destination: place.place_name,
-      coordinates: place.center,
+      coordinates: { lng: place.center[0], lat: place.center[1] },
     }));
     setResults([]);
   };
@@ -119,43 +113,27 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
-    if (
-      !tripPreferences.budget ||
-      !tripPreferences.days ||
-      !tripPreferences.travelerType ||
-      !tripPreferences.destination
-    ) {
+    const { budget, days, travelerType, destination } = tripPreferences;
+
+    if (!budget || !days || !travelerType || !destination) {
       toast.error("Please fill all the data");
       return;
     }
 
-    console.log("Trip Preferences:", tripPreferences);
-
     try {
       toast.loading("Generating your trip plan...");
+      const res = await fetch("http://localhost:3000/api/v1/generate-trip-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tripPreferences),
+      });
 
-      const res = await fetch(
-        "http://localhost:3000/api/v1/generate-trip-plan",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tripPreferences),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error(`Error: ${res.statusText}`);
-      }
+      if (!res.ok) throw new Error(`Error: ${res.statusText}`);
 
       const result = await res.json();
-      SaveAiTrip(result);
+      await SaveAiTrip(result);
       toast.dismiss();
       toast.success("Trip plan generated!");
-
-      // You can store the result in state here if you want to display it
-      // setTripPlan(result);
     } catch (error) {
       toast.dismiss();
       toast.error("Failed to generate trip plan. Try again.");
@@ -163,26 +141,24 @@ const Page = () => {
     }
   };
 
-  const SaveAiTrip = async (TripData: any) => {
-    console.log(TripData);
-    //call the api here to get the id form cookie
+  const SaveAiTrip = async (TripData: TripData) => {
     const res = await fetch("http://localhost:3000/api/v1/getId", {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
     });
+
     const data = await res.json();
     const user = data.user;
-    console.log(user);
     const docId = Date.now().toString();
+
     await setDoc(doc(db, "AITrips", docId), {
       userSelection: tripPreferences,
       TripData: TripData || null,
-      userEmail: user.email || null, 
+      userEmail: user.email || null,
     });
-    router.push('viewTrip/'+docId)
+
+    router.push(`viewTrip/${docId}`);
   };
 
   return (

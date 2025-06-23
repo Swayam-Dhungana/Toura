@@ -35,15 +35,16 @@ const Home = () => {
         Discover hidden gems, and get smart insights.
       </motion.h1>
 
-      <motion.p
-        variants={fadeInUp}
-        initial="hidden"
-        animate="visible"
-        custom={0.2}
-        className="text-lg md:text-xl text-gray-300 text-center max-w-2xl"
-      >
-        "Explore smarter. Travel better."
-      </motion.p>
+<motion.p
+  variants={fadeInUp}
+  initial="hidden"
+  animate="visible"
+  custom={0.2}
+  className="text-lg md:text-xl text-gray-300 text-center max-w-2xl"
+>
+  &quot;Explore smarter. Travel better.&quot;
+</motion.p>
+
 
       <motion.div
         variants={fadeInUp}
