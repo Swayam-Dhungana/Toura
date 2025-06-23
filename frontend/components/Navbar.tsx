@@ -30,7 +30,7 @@ const Navbar = () => {
         setIsLoggedIn(data.loggedIn);
       })
       .catch(() => setIsLoggedIn(false));
-  }, []);
+  }, [baseUrl]);
 
   if (isLoggedIn === null) return null;
 

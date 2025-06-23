@@ -28,10 +28,11 @@ const GoogleLoginButton = () => {
       if (!data.success) {
         console.error('Failed to set cookie:', data.error)
       }
-    } catch (error: any) {
-      if (error.code === 'auth/cancelled-popup-request') {
+    } catch (error ) {
+      const err = error as { code?: string; message?: string }
+      if (err.code === 'auth/cancelled-popup-request') {
         console.warn('Popup cancelled or multiple popups opened.')
-      } else if (error.code === 'auth/unauthorized-domain') {
+      } else if (err.code === 'auth/unauthorized-domain') {
         alert(
           'Unauthorized domain. Please add your domain to Firebase console authorized domains.'
         )
