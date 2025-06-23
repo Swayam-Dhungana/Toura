@@ -1,0 +1,12 @@
+name = "toura"
+type = "typescript"  # or "typescript" if you use TS
+
+account_id = "your-cloudflare-account-id"
+workers_dev = true
+
+[build]
+command = "npm run build"  # or your build command
+
+[build.upload]
+dir = "dist"  # directory where your built worker script goes
+main = "index.js"
