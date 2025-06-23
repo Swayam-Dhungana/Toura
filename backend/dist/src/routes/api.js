@@ -1,0 +1,42 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const hono_1 = require("hono");
+const firebase_1 = require("../lib/firebase");
+const authRoutes = new hono_1.Hono();
+authRoutes.post('/setcookie', async (c) => {
+    try {
+        const body = await c.req.json();
+        const idToken = body.idToken;
+        const decodedToken = await firebase_1.adminAuth.verifyIdToken(idToken);
+        const uid = decodedToken.uid;
+        const email = decodedToken.email;
+        const expiresIn = 60 * 60 * 24 * 5 * 1000;
+        const sessionCookie = await firebase_1.adminAuth.createSessionCookie(idToken, { expiresIn });
+        c.header('Set-Cookie', `session=${sessionCookie}; HttpOnly; Path=/; Max-Age=${expiresIn / 1000}; ${process.env.NODE_ENV === 'production' ? 'Secure; SameSite=Strict' : ''}`);
+        return c.json({ success: true, uid, email });
+    }
+    catch (err) {
+        console.error('Error verifying token:', err);
+        return c.json({ success: false, error: 'Invalid ID token' }, 401);
+    }
+});
+authRoutes.get('/session', async (c) => {
+    try {
+        const cookie = c.req.header('cookie');
+        if (!cookie)
+            throw new Error('No cookie');
+        const match = cookie.match(/session=([^;]+)/);
+        if (!match)
+            throw new Error('No session cookie');
+        const sessionCookie = match[1];
+        // Verify session cookie
+        const decodedClaims = await firebase_1.adminAuth.verifySessionCookie(sessionCookie, true);
+        // session valid
+        return c.json({ loggedIn: true, uid: decodedClaims.uid, email: decodedClaims.email });
+    }
+    catch (err) {
+        // session invalid or no cookie
+        return c.json({ loggedIn: false });
+    }
+});
+exports.default = authRoutes;

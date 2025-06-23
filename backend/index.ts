@@ -1,8 +1,8 @@
 // src/index.ts
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
-import authRoutes from './routes/api'
-import hotelRoutes from './routes/hotel'
+import authRoutes from './src/routes/api'
+import hotelRoutes from './src/routes/hotel'
 import { cors } from 'hono/cors'
 const app = new Hono()
 app.use(
