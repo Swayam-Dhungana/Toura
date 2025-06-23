@@ -8,14 +8,19 @@ const hono_1 = require("hono");
 const node_server_1 = require("@hono/node-server");
 const api_1 = __importDefault(require("./src/routes/api"));
 const hotel_1 = __importDefault(require("./src/routes/hotel"));
-const cors_1 = require("hono/cors");
 const app = new hono_1.Hono();
-app.use('*', (0, cors_1.cors)({
-    origin: 'http://localhost:3001',
-    credentials: true,
-}));
+app.use('*', async (c, next) => {
+    const origin = process.env.BASEURL || 'https://toura-swart.vercel.app';
+    c.header('Access-Control-Allow-Origin', origin);
+    c.header('Access-Control-Allow-Credentials', 'true');
+    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    c.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    if (c.req.method === 'OPTIONS') {
+        return c.text('', 200);
+    }
+    await next();
+});
 app.route('/api', api_1.default);
 app.route('/api/v1', hotel_1.default);
 app.get('/', (c) => c.text('Hello from Hono + Node.js!'));
 (0, node_server_1.serve)({ fetch: app.fetch, port: 3000 });
-console.log('Server running on http://localhost:3000');
