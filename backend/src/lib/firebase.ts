@@ -1,13 +1,16 @@
-import admin from 'firebase-admin'
-import serviceAccount from '../../serviceAccountKey.json' //Connect a service account firebase
+import admin from 'firebase-admin';
 
+const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-//This is required for user Validation in the backend
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount as any),
-  })
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey,
+    }),
+  });
 }
 
-export const adminAuth = admin.auth()
-export const adminFirestore = admin.firestore()
+export const adminAuth = admin.auth();
+export const adminFirestore = admin.firestore();
