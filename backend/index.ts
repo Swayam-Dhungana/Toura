@@ -20,6 +20,8 @@ app.use('*', async (c, next) => {
 
 app.route('/api', authRoutes)
 app.route('/api/v1', hotelRoutes)
-app.get('/', (c) => c.text('Hello from Hono + Node.js!'))
+app.get('/', (c) => {
+  return c.text('Hello from Hono + Node.js!')
+})
 
 export default app.fetch
