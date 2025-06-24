@@ -1,7 +1,7 @@
 name = "toura"
 type = "typescript"  # or "typescript" if you use TS
 
-account_id = "your-cloudflare-account-id"
+account_id = "2c34391859b0b3a6eebf4a7b4f834336"
 workers_dev = true
 
 [build]
