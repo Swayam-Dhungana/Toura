@@ -5,8 +5,7 @@ import hotelRoutes from './src/routes/hotel'
 const app = new Hono()
 
 app.use('*', async (c, next) => {
-  const origin = process.env.BASEURL || 'https://toura-swart.vercel.app'
-
+  const origin = 'https://toura-swart.vercel.app'
   c.header('Access-Control-Allow-Origin', origin)
   c.header('Access-Control-Allow-Credentials', 'true')
   c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
