@@ -8,7 +8,7 @@ const api_1 = __importDefault(require("./src/routes/api"));
 const hotel_1 = __importDefault(require("./src/routes/hotel"));
 const app = new hono_1.Hono();
 app.use('*', async (c, next) => {
-    const origin = process.env.BASEURL || 'https://toura-swart.vercel.app';
+    const origin = 'https://toura-swart.vercel.app';
     c.header('Access-Control-Allow-Origin', origin);
     c.header('Access-Control-Allow-Credentials', 'true');
     c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -20,5 +20,7 @@ app.use('*', async (c, next) => {
 });
 app.route('/api', api_1.default);
 app.route('/api/v1', hotel_1.default);
-app.get('/', (c) => c.text('Hello from Hono + Node.js!'));
+app.get('/', (c) => {
+    return c.text('Hello from Hono + Node.js!');
+});
 exports.default = app.fetch;
