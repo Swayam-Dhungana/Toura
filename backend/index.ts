@@ -12,7 +12,7 @@ app.use('*', async (c, next) => {
   c.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
 
   if (c.req.method === 'OPTIONS') {
-    return c.text('', 200) 
+    return c.text('', 200)
   }
 
   await next()
@@ -20,8 +20,17 @@ app.use('*', async (c, next) => {
 
 app.route('/api', authRoutes)
 app.route('/api/v1', hotelRoutes)
+
 app.get('/', (c) => {
-  return c.text('Hello from Hono + Node.js!')
+  return c.text('Hello from Hono + Bun on Railway!')
 })
 
-export default app.fetch
+// 🚀 Start the Bun server (THIS is the part Railway needs)
+const port = Number(process.env.PORT) || 3000
+
+console.log(`🚀 Server running on http://localhost:${port}`)
+
+Bun.serve({
+  port,
+  fetch: app.fetch,
+})
